@@ -1,2 +1,4 @@
 # docker-image-wapp
-wapptclsh dockerized
+[wapptclsh](https://wapp.tcl.tk/) dockerized in Alpine Linux image.
+
+*Currently beta*
