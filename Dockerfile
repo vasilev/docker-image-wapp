@@ -1,15 +1,22 @@
 FROM alpine AS builder
 
-RUN apk add build-base fossil tcl-dev \
+ARG PREFIX=/home/drh/tcl
+
+RUN apk add bsd-compat-headers build-base fossil zlib-static \
+  && wget https://prdownloads.sourceforge.net/tcl/tcl8.7a5-src.tar.gz \
+  && tar -xzf tcl8.7a5-src.tar.gz \
+  && cd tcl8.7a5/unix \
+  && ./configure --disable-shared --prefix=$PREFIX \
+  && make && make install \
+  && ln -s $PREFIX/bin/tclsh8.7 $PREFIX/bin/tclsh \
+  && export PATH=$PATH:$PREFIX/bin \
+  && cd / \
   && fossil clone --user root https://wapp.tcl.tk \
   && cd wapp \
-  && sed -i.bak -e 's| -static||;s|/home/drh/tcl|/usr|;s|libtcl8.7.a|libtcl'$(echo 'puts $tcl_version' | tclsh)'.so|' Makefile \
   && make
 
 
 FROM alpine
-
-RUN apk add --no-cache tcl
 
 COPY --from=builder /wapp/wapptclsh /usr/bin/wapptclsh
 
